@@ -9,4 +9,5 @@ abstract non-sealed class ExtendedPlatform implements IPlatform {
 
     public static final ExtendedPlatform AVOID = ExAvoid.INSTANCE
     public static final ExtendedPlatform PAPER_AND_FORKS = ExPaper.INSTANCE
+    public static final ExtendedPlatform SPIGOT_AND_FORKS = ExSpigot.INSTANCE
 }
