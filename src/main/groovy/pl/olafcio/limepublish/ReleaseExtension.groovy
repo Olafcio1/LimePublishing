@@ -262,7 +262,7 @@ class ReleaseExtension {
         return github
     }
 
-    void modrinth(Action<GitHub> configuration) {
+    void github(Action<GitHub> configuration) {
         if (configuration == null)
             throw new ValueError("github cannot be 'null'")
 
