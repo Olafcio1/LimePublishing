@@ -14,7 +14,7 @@ class ExAvoid {
     static final INSTANCE = new ExtendedPlatform() {
         @Override
         Platform[] getActualPlatforms() {
-            return [Platform.FABRIC, Platform.NEOFORGE, Platform.PAPER, Platform.PURPUR, Platform.SPONGE]
+            return [Platform.FABRIC, Platform.QUILT, Platform.NEOFORGE, Platform.PAPER, Platform.PURPUR, Platform.SPONGE]
         }
 
         @Override
