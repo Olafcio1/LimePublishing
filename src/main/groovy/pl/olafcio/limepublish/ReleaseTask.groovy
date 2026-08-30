@@ -2,8 +2,7 @@ package pl.olafcio.limepublish
 
 import groovy.json.JsonOutput
 import org.gradle.api.Action
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
+import org.gradle.work.DisableCachingByDefault
 import pl.olafcio.limepublish.enums.*
 import pl.olafcio.limepublish.errors.MiscError
 import pl.olafcio.limepublish.errors.RequestError
@@ -16,6 +15,7 @@ import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
+@DisableCachingByDefault
 class ReleaseTask {
     void release() {
         if (files == null)
@@ -24,12 +24,12 @@ class ReleaseTask {
         final var boundary = UUID.randomUUID().toString()
         final var data = new ByteArrayOutputStream()
 
+        var fileMap = new HashMap<String, Path>()
+
         var filenames = []
-        var filetypes = []
+        var filetypes = Map.of()
 
         var filename_main = null
-
-        int index = 0
 
         for (var fn : files) {
             if (fn.getValue() == null)
@@ -39,15 +39,12 @@ class ReleaseTask {
 
             filenames.add(newFN)
 
-            data.write("--${boundary}\r\n"                                                                     .getBytes(StandardCharsets.UTF_8))
-            data.write("Content-Disposition: form-data; name=\"datafile${index++}\"; filename=\"${newFN}\"\r\n".getBytes(StandardCharsets.UTF_8))
-            data.write('Content-Type: application/octet-executable\r\n'                                        .getBytes(StandardCharsets.UTF_8))
-            data.write('\r\n'                                                                                  .getBytes(StandardCharsets.UTF_8))
+            fileMap.put(newFN, fn.getValue())
 
             if (fn.getKey() == FileKind.MAIN) {
                 filename_main = newFN
             } else {
-                filetypes.add(fn.getKey().name().toLowerCase().replace("_", "-"))
+                filetypes.put(newFN, fn.getKey().name().toLowerCase().replace("_", "-"))
             }
         }
 
@@ -64,18 +61,33 @@ class ReleaseTask {
                 "version_number": this.version_number,
                 "changelog"     : this.changelog,
                 "dependencies"  : this.dependencies.collect { [
-                        "version_id"     : it.project,
+                        "project_id"     : it.project,
                         "dependency_type": it.dependence.name().toLowerCase()
                 ]},
                 "game_versions" : this.minecraft,
                 "version_type"  : this.version_type == VersionType.STABLE ? "release" : this.version_type.name().toLowerCase(),
                 "loaders"       : this.platforms.collect { it.name().toLowerCase() },
                 "project_id"    : this.modrinth.slug,
-                "file_parts"    : [filenames],
-                "primary_file"  : [filename_main],
+                "file_parts"    : filenames,
+                "primary_file"  : filename_main,
                 "environment"   : this.environment.name().toLowerCase(),
-                "file_types"    : filetypes
+                "file_types"    : filetypes,
+                "featured"      : false
         ]).getBytes(StandardCharsets.UTF_8))
+
+        data.write('\r\n'.getBytes(StandardCharsets.UTF_8))
+
+        int index = 0
+
+        for (var entry : fileMap) {
+            data.write("--${boundary}\r\n"                                                                              .getBytes(StandardCharsets.UTF_8))
+            data.write("Content-Disposition: form-data; name=\"datafile${index++}\"; filename=\"${entry.getKey()}\"\r\n".getBytes(StandardCharsets.UTF_8))
+            data.write('Content-Type: application/octet-executable\r\n'                                                 .getBytes(StandardCharsets.UTF_8))
+            data.write('\r\n'                                                                                           .getBytes(StandardCharsets.UTF_8))
+
+            data.write(java.nio.file.Files.readAllBytes(entry.getValue()))
+            data.write('\r\n'.getBytes(StandardCharsets.UTF_8))
+        }
 
         data.write("--${boundary}--\r\n".getBytes(StandardCharsets.UTF_8))
 
