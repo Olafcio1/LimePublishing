@@ -5,7 +5,8 @@ import org.gradle.work.DisableCachingByDefault
 import pl.olafcio.limepublish.enums.*
 import pl.olafcio.limepublish.enums.group.IPlatform
 import pl.olafcio.limepublish.errors.ValueError
-import pl.olafcio.limepublish.website.Modrinth
+import pl.olafcio.limepublish.website.github.GitHub
+import pl.olafcio.limepublish.website.modrinth.Modrinth
 
 import java.nio.file.Path
 
@@ -210,5 +211,24 @@ class ReleaseExtension {
         modrinth = new Modrinth()
 
         configuration(modrinth)
+    }
+
+    ///////////////////////
+    /// WEBSITE: GITHUB ///
+    ///////////////////////
+
+    GitHub github
+
+    GitHub getGitHub() {
+        return github
+    }
+
+    void modrinth(Action<GitHub> configuration) {
+        if (configuration == null)
+            throw new ValueError("github cannot be 'null'")
+
+        github = new GitHub()
+
+        configuration(github)
     }
 }

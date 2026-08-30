@@ -1,4 +1,4 @@
-package pl.olafcio.limepublish.website
+package pl.olafcio.limepublish.website.modrinth
 
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
