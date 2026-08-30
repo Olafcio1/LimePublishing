@@ -1,11 +1,14 @@
 package pl.olafcio.limepublish
 
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import pl.olafcio.limepublish.enums.FileKind
+import pl.olafcio.limepublish.enums.Platform
 import pl.olafcio.limepublish.enums.VersionType
+import pl.olafcio.limepublish.enums.extra.ExtendedPlatform
 import pl.olafcio.limepublish.errors.MiscError
 import pl.olafcio.limepublish.errors.RequestError
 import pl.olafcio.limepublish.util.FormData
@@ -53,7 +56,28 @@ class ReleaseTask extends DefaultTask {
         if (filename_main == null)
             throw new MiscError("Missing main file (did you forgot to add a 'files' section?)")
 
-        data.append("data", JsonOutput.toJson([
+        var loaders
+        var extended
+
+        if (this.config.platforms.any { it instanceof ExtendedPlatform }) {
+            for (var platform : this.config.platforms)
+                if (platform instanceof ExtendedPlatform)
+                    platform.performChecks(fileMap.get(filename_main))
+
+            loaders = [Platform.JAVA_AGENT.name().toLowerCase().replace("_", "-")]
+            extended = true
+        } else {
+            loaders = this.config.platforms.collect { it.getActualPlatforms() }
+                                           .flatten()
+                                           .collect { (Platform) it }
+                                           .collect { it.name().toLowerCase().replace("_", "-") }
+
+            extended = false
+        }
+
+        var req
+
+        data.append("data", JsonOutput.toJson(req = [
                 "name"          : this.config.name,
                 "version_number": this.config.version_number,
                 "changelog"     : this.config.changelog,
@@ -63,7 +87,7 @@ class ReleaseTask extends DefaultTask {
                 ]},
                 "game_versions" : this.config.minecraft,
                 "version_type"  : this.config.version_type == VersionType.STABLE ? "release" : this.config.version_type.name().toLowerCase(),
-                "loaders"       : this.config.platforms.collect { it.name().toLowerCase() },
+                "loaders"       : loaders,
                 "project_id"    : this.config.modrinth.slug,
                 "file_parts"    : filenames,
                 "primary_file"  : filename_main,
@@ -84,6 +108,8 @@ class ReleaseTask extends DefaultTask {
 
         data.end()
 
+        String output
+
         try (var client = HttpClient.newHttpClient()) {
             var resp = client.send(HttpRequest.newBuilder()
                                                   .uri(URI.create("https://api.modrinth.com/v2/version"))
@@ -94,8 +120,39 @@ class ReleaseTask extends DefaultTask {
 
             if (resp.statusCode() >= 400)
                 throw new RequestError("Modrinth call returned status code ${resp.statusCode()}\n  > body: ${resp.body()}")
+
+            output = resp.body()
         } finally {
             data.close()
+        }
+
+        if (extended) {
+            //noinspection GroovyVariableNotAssigned
+            req.remove("primary_file")
+            req.remove("project_id")
+            req.remove("file_parts")
+            req.remove("featured")
+
+            var json = new JsonSlurper().parseText(output)
+            var data2 = JsonOutput.toJson(req + [
+                    'loaders': this.config.platforms.collect { it.getActualPlatforms() }
+                                                    .flatten()
+                                                    .collect { (Platform) it }
+                                                    .collect { it.name().toLowerCase() },
+                    'file_types': []
+            ])
+
+            try (var client = HttpClient.newHttpClient()) {
+                var resp = client.send(HttpRequest.newBuilder()
+                                                                       .uri(URI.create("https://api.modrinth.com/v3/version/${json['id']}"))
+                                                                       .method("PATCH", HttpRequest.BodyPublishers.ofString(data2, StandardCharsets.UTF_8))
+                                                                       .header("Content-Type", "application/json")
+                                                                       .header("Authorization", this.config.modrinth.token.get())
+                                                                       .build(), HttpResponse.BodyHandlers.ofString())
+
+                if (resp.statusCode() >= 400)
+                    throw new RequestError("Modrinth extended call returned status code ${resp.statusCode()}\n  > body: '${resp.body()}'")
+            }
         }
     }
 }

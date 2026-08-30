@@ -1,6 +1,8 @@
 package pl.olafcio.limepublish.enums
 
-enum Platform {
+import pl.olafcio.limepublish.enums.group.IPlatform
+
+enum Platform implements IPlatform {
     // Mods
     FABRIC,
     FORGE,

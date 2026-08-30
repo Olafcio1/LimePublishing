@@ -3,6 +3,7 @@ package pl.olafcio.limepublish
 import org.gradle.api.Action
 import org.gradle.work.DisableCachingByDefault
 import pl.olafcio.limepublish.enums.*
+import pl.olafcio.limepublish.enums.group.IPlatform
 import pl.olafcio.limepublish.errors.ValueError
 import pl.olafcio.limepublish.website.Modrinth
 
@@ -92,19 +93,19 @@ class ReleaseExtension {
     /// PLATFORMS ///
     /////////////////
 
-    List<Platform> platforms
+    Set<IPlatform> platforms
 
-    List<Platform> getPlatforms() {
+    Set<IPlatform> getPlatforms() {
         return platforms
     }
 
-    void setPlatforms(List<Platform> value) {
+    void setPlatforms(List<IPlatform> value) {
         if (value == null)
             throw new ValueError("platforms cannot be 'null'")
-        else if (value == null)
+        else if (value.isEmpty())
             throw new ValueError("platforms cannot be empty")
 
-        platforms = value
+        platforms = value.toSet()
     }
 
     /////////////////
