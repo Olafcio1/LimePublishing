@@ -26,7 +26,7 @@ class ReleaseTask extends DefaultTask {
     @TaskAction
     void release() {
         if (config.files == null)
-            throw new MiscError("Missing files (did you forgot to add a 'files' section?)")
+            throw new MiscError("Missing files (did you forget to add a 'files' section?)")
 
         var data    = new FormData()
         var fileMap = new HashMap<String, Path>()
@@ -54,7 +54,7 @@ class ReleaseTask extends DefaultTask {
         }
 
         if (filename_main == null)
-            throw new MiscError("Missing main file (did you forgot to add a 'files' section?)")
+            throw new MiscError("Missing main file (did you forget to add a 'files' section?)")
 
         var loaders
         var extended
