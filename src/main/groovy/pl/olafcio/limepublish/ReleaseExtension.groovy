@@ -145,14 +145,53 @@ class ReleaseExtension {
         changelog = value
     }
 
-    ////////////////
-    /// REQUIRES ///
-    ////////////////
+    ////////////////////
+    /// DEPENDENCIES ///
+    ////////////////////
 
     List<Dependency> dependencies = new ArrayList<>()
 
     void requires(Action<Dependency> configuration) {
         var dependency = new Dependency(Dependence.REQUIRED)
+
+        configuration(dependency)
+
+        if (dependency.getProject() == null)
+            throw new ValueError("requires.project cannot be 'null'")
+        else if (dependency.getProject().isEmpty())
+            throw new ValueError("requires.project cannot be empty")
+
+        dependencies.add(dependency)
+    }
+
+    void optional(Action<Dependency> configuration) {
+        var dependency = new Dependency(Dependence.OPTIONAL)
+
+        configuration(dependency)
+
+        if (dependency.getProject() == null)
+            throw new ValueError("requires.project cannot be 'null'")
+        else if (dependency.getProject().isEmpty())
+            throw new ValueError("requires.project cannot be empty")
+
+        dependencies.add(dependency)
+    }
+
+    void incompatible(Action<Dependency> configuration) {
+        var dependency = new Dependency(Dependence.INCOMPATIBLE)
+
+        configuration(dependency)
+
+        if (dependency.getProject() == null)
+            throw new ValueError("requires.project cannot be 'null'")
+        else if (dependency.getProject().isEmpty())
+            throw new ValueError("requires.project cannot be empty")
+
+        dependencies.add(dependency)
+    }
+
+    void embedded(Action<Dependency> configuration) {
+        var dependency = new Dependency(Dependence.EMBEDDED)
 
         configuration(dependency)
 
