@@ -1,16 +1,17 @@
-package pl.olafcio.limepublish.enums.extra
+package pl.olafcio.limepublish.enums.extra.extended_platform
 
 import groovy.json.JsonSlurper
+import groovy.transform.PackageScope
 import pl.olafcio.limepublish.enums.Platform
-import pl.olafcio.limepublish.enums.group.IPlatform
 import pl.olafcio.limepublish.errors.MiscError
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.zip.ZipFile
 
-enum ExtendedPlatform implements IPlatform {
-    AVOID {
+@PackageScope
+class ExAvoid {
+    static final INSTANCE = new ExtendedPlatform() {
         @Override
         Platform[] getActualPlatforms() {
             return [Platform.FABRIC, Platform.NEOFORGE, Platform.PAPER, Platform.PURPUR, Platform.SPONGE]

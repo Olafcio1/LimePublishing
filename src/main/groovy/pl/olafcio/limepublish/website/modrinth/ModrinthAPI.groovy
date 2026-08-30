@@ -6,7 +6,7 @@ import groovy.transform.Internal
 import pl.olafcio.limepublish.ReleaseExtension
 import pl.olafcio.limepublish.enums.Platform
 import pl.olafcio.limepublish.enums.VersionType
-import pl.olafcio.limepublish.enums.extra.ExtendedPlatform
+import pl.olafcio.limepublish.enums.extra.extended_platform.ExtendedPlatform
 import pl.olafcio.limepublish.errors.RequestError
 import pl.olafcio.limepublish.util.FormData
 

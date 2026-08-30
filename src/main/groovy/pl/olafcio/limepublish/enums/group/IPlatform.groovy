@@ -2,7 +2,7 @@ package pl.olafcio.limepublish.enums.group
 
 import groovy.transform.Internal
 import pl.olafcio.limepublish.enums.Platform
-import pl.olafcio.limepublish.enums.extra.ExtendedPlatform
+import pl.olafcio.limepublish.enums.extra.extended_platform.ExtendedPlatform
 
 import java.nio.file.Path
 
