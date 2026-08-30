@@ -82,13 +82,13 @@ class ReleaseTask extends DefaultTask {
                 "version_number": this.config.version_number,
                 "changelog"     : this.config.changelog,
                 "dependencies"  : this.config.dependencies.collect { [
-                        "project_id"     : it.project,
+                        "project_id"     : lookupProject(it.project),
                         "dependency_type": it.dependence.name().toLowerCase()
                 ]},
                 "game_versions" : this.config.minecraft,
                 "version_type"  : this.config.version_type == VersionType.STABLE ? "release" : this.config.version_type.name().toLowerCase(),
                 "loaders"       : loaders,
-                "project_id"    : this.config.modrinth.slug,
+                "project_id"    : lookupProject(this.config.modrinth.slug),
                 "file_parts"    : filenames,
                 "primary_file"  : filename_main,
                 "environment"   : this.config.environment.name().toLowerCase(),
@@ -155,6 +155,23 @@ class ReleaseTask extends DefaultTask {
                 if (resp.statusCode() >= 400)
                     throw new RequestError("Modrinth extended call returned status code ${resp.statusCode()}\n  > body: '${resp.body()}'")
             }
+        }
+    }
+
+    @Internal
+    private String lookupProject(String reference) {
+        try (var client = HttpClient.newHttpClient()) {
+            var resp = client.send(HttpRequest.newBuilder()
+                                                  .uri(URI.create("https://api.modrinth.com/v3/project/${reference}"))
+                                                  .method("GET", HttpRequest.BodyPublishers.noBody())
+                                                  .header("Authorization", this.config.modrinth.token.get())
+                                                  .header("User-Agent", "Olafcio1/LimePublishing")
+                                                  .build(), HttpResponse.BodyHandlers.ofString())
+
+            if (resp.statusCode() >= 400)
+                throw new RequestError("Modrinth project lookup call returned status code ${resp.statusCode()}\n  > body: '${resp.body()}'")
+
+            return new JsonSlurper().parseText(resp.body())['id']
         }
     }
 }
