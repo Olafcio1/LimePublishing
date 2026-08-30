@@ -116,6 +116,7 @@ class ReleaseTask extends DefaultTask {
                                                   .method("POST", HttpRequest.BodyPublishers.ofByteArray(data.toByteArray()))
                                                   .header("Content-Type", "multipart/form-data; boundary=${data.boundary}")
                                                   .header("Authorization", this.config.modrinth.token.get())
+                                                  .header("User-Agent", "Olafcio1/LimePublishing")
                                                   .build(), HttpResponse.BodyHandlers.ofString())
 
             if (resp.statusCode() >= 400)
@@ -148,6 +149,7 @@ class ReleaseTask extends DefaultTask {
                                                                        .method("PATCH", HttpRequest.BodyPublishers.ofString(data2, StandardCharsets.UTF_8))
                                                                        .header("Content-Type", "application/json")
                                                                        .header("Authorization", this.config.modrinth.token.get())
+                                                                       .header("User-Agent", "Olafcio1/LimePublishing")
                                                                        .build(), HttpResponse.BodyHandlers.ofString())
 
                 if (resp.statusCode() >= 400)
