@@ -98,7 +98,7 @@ class ReleaseExtension {
         return platforms
     }
 
-    void getPlatforms(List<Platform> value) {
+    void setPlatforms(List<Platform> value) {
         if (value == null)
             throw new ValueError("platforms cannot be 'null'")
         else if (value == null)
