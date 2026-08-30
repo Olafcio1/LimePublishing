@@ -170,9 +170,9 @@ class ReleaseExtension {
         configuration(dependency)
 
         if (dependency.getProject() == null)
-            throw new ValueError("requires.project cannot be 'null'")
+            throw new ValueError("optional.project cannot be 'null'")
         else if (dependency.getProject().isEmpty())
-            throw new ValueError("requires.project cannot be empty")
+            throw new ValueError("optional.project cannot be empty")
 
         dependencies.add(dependency)
     }
@@ -183,9 +183,9 @@ class ReleaseExtension {
         configuration(dependency)
 
         if (dependency.getProject() == null)
-            throw new ValueError("requires.project cannot be 'null'")
+            throw new ValueError("incompatible.project cannot be 'null'")
         else if (dependency.getProject().isEmpty())
-            throw new ValueError("requires.project cannot be empty")
+            throw new ValueError("incompatible.project cannot be empty")
 
         dependencies.add(dependency)
     }
@@ -196,9 +196,9 @@ class ReleaseExtension {
         configuration(dependency)
 
         if (dependency.getProject() == null)
-            throw new ValueError("requires.project cannot be 'null'")
+            throw new ValueError("embedded.project cannot be 'null'")
         else if (dependency.getProject().isEmpty())
-            throw new ValueError("requires.project cannot be empty")
+            throw new ValueError("embedded.project cannot be empty")
 
         dependencies.add(dependency)
     }
