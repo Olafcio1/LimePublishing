@@ -1,5 +1,6 @@
 package pl.olafcio.limepublish
 
+import groovy.transform.PackageScope
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -17,6 +18,20 @@ class ReleaseTask extends DefaultTask {
 
     @TaskAction
     void release() {
+        var params = argmap(config)
+
+        if (config.modrinth != null) {
+            new ModrinthAPI(params).release()
+        }
+
+        if (config.github != null) {
+            new GitHubAPI(params).release()
+        }
+    }
+
+    @PackageScope
+    @Internal
+    static def argmap(ReleaseExtension config) {
         if (config.files == null)
             throw new MiscError("Missing files (did you forget to add a 'files' section?)")
 
@@ -48,16 +63,8 @@ class ReleaseTask extends DefaultTask {
         if (filename_main == null)
             throw new MiscError("Missing main file (did you forget to add a 'files' section?)")
 
-        if (config.modrinth != null) {
-            new ModrinthAPI(config: config, data: data,
-                            fileMap: fileMap, filename_main: filename_main,
-                            filenames: filenames, filetypes: filetypes).release()
-        }
-
-        if (config.github != null) {
-            new GitHubAPI(config: config, data: data,
-                          fileMap: fileMap, filename_main: filename_main,
-                          filenames: filenames, filetypes: filetypes).release()
-        }
+        return [config: config, data: data,
+                fileMap: fileMap, filename_main: filename_main,
+                filenames: filenames, filetypes: filetypes]
     }
 }
