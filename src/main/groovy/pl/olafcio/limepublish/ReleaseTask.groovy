@@ -30,7 +30,6 @@ class ReleaseTask extends DefaultTask {
     }
 
     @PackageScope
-    @Internal
     static def argmap(ReleaseExtension config) {
         if (config.files == null)
             throw new MiscError("Missing files (did you forget to add a 'files' section?)")
