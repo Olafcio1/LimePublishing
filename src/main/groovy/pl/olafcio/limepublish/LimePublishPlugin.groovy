@@ -38,7 +38,6 @@ class LimePublishPlugin implements Plugin<Project> {
     }
 
     static class SimpleTask extends DefaultTask {
-        @Internal
         @PackageScope
         Runnable func
 
